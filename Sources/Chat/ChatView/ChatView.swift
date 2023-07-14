@@ -1,24 +1,22 @@
 //
-//  ChatView.swift
-//  Chat
-//
-//  Created by Alisa Mylnikova on 20.04.2022.
+//  Created by Alisa Mylnikov
 //
 
-import SwiftUI
 import FloatingButton
 import Introspect
+import SwiftUI
 
 public struct ChatView<MessageContent: View, InputViewContent: View>: View {
-
     /// To build a custom message view use the following parameters passed by this closure:
     /// - message containing user, attachments, etc.
     /// - position of message in its continuous group of messages from the same user
     /// - pass attachment to this closure to use ChatView's fullscreen media viewer
-    public typealias MessageBuilderClosure = ((Message, PositionInGroup, @escaping (any Attachment) -> Void) -> MessageContent)
+    public typealias MessageBuilderClosure = (Message, PositionInGroup, @escaping (any Attachment) -> Void) -> MessageContent
 
-    public typealias InputViewBuilderClosure = ((
-        Binding<String>, InputViewAttachments, InputViewState, InputViewStyle, @escaping (InputViewAction) -> Void) -> InputViewContent)
+    public typealias InputViewBuilderClosure = (Binding<String>, InputViewAttachments, InputViewState, InputViewStyle, @escaping (InputViewAction) -> Void) -> InputViewContent
+
+    public typealias DeleteActionClosure = (Message) -> Void
+    public typealias ViewMessageActionClosure = (Message) -> Void
 
     @Environment(\.safeAreaInsets) private var safeAreaInsets
     @Environment(\.chatTheme) private var theme
@@ -31,6 +29,9 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
 
     /// provide custom input view builder
     var inputViewBuilder: InputViewBuilderClosure? = nil
+
+    var deleteAction: DeleteActionClosure? = nil
+    var viewMessageAction: ViewMessageActionClosure? = nil
 
     var avatarSize: CGFloat = 32
     var assetsPickerLimit: Int = 10
@@ -48,7 +49,7 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
     @State private var inputFieldId = UUID()
 
     @State private var isScrolledToBottom: Bool = true
-    @State private var shouldScrollToTop: () -> () = {}
+    @State private var shouldScrollToTop: () -> Void = {}
 
     @State private var isShowingMenu = false
     @State private var needsScrollView = false
@@ -63,12 +64,15 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
     public init(messages: [Message],
                 didSendMessage: @escaping (DraftMessage) -> Void,
                 messageBuilder: @escaping MessageBuilderClosure,
-                inputViewBuilder: @escaping InputViewBuilderClosure) {
+                inputViewBuilder _: @escaping InputViewBuilderClosure,
+                deleteAction: @escaping DeleteActionClosure,
+                viewMessageAction: @escaping ViewMessageActionClosure) {
         self.didSendMessage = didSendMessage
-        self.sections = ChatView.mapMessages(messages)
-        self.ids = messages.map { $0.id }
+        sections = ChatView.mapMessages(messages)
+        ids = messages.map(\.id)
         self.messageBuilder = messageBuilder
-        self.inputViewBuilder = inputViewBuilder
+        self.deleteAction = deleteAction
+        self.viewMessageAction = viewMessageAction
     }
 
     public var body: some View {
@@ -89,7 +93,7 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
             }
 
             Group {
-                if let inputViewBuilder = inputViewBuilder {
+                if let inputViewBuilder {
                     inputViewBuilder($inputViewModel.attachments.text, inputViewModel.attachments, inputViewModel.state, .message, inputViewModel.inputViewAction())
                 } else {
                     InputView(
@@ -106,7 +110,7 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
         }
         .background(theme.colors.mainBackground)
         .fullScreenCover(isPresented: $viewModel.fullscreenAttachmentPresented) {
-            let attachments = sections.flatMap { section in section.rows.flatMap { $0.message.attachments } }
+            let attachments = sections.flatMap { section in section.rows.flatMap(\.message.attachments) }
             let index = attachments.firstIndex { $0.id == viewModel.fullscreenAttachmentItem?.id }
 
             GeometryReader { g in
@@ -144,61 +148,60 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
                avatarSize: avatarSize,
                messageUseMarkdown: messageUseMarkdown,
                sections: sections,
-               ids: ids
-        )
-        .onStatusBarTap {
-            shouldScrollToTop()
-        }
-        .transparentNonAnimatingFullScreenCover(item: $viewModel.messageMenuRow) {
-            if let row = viewModel.messageMenuRow {
-                ZStack(alignment: .topLeading) {
-                    Color.white
-                        .opacity(menuBgOpacity)
-                        .ignoresSafeArea(.all)
+               ids: ids)
+            .onStatusBarTap {
+                shouldScrollToTop()
+            }
+            .transparentNonAnimatingFullScreenCover(item: $viewModel.messageMenuRow) {
+                if let row = viewModel.messageMenuRow {
+                    ZStack(alignment: .topLeading) {
+                        Color.primary
+                            .opacity(menuBgOpacity)
+                            .ignoresSafeArea(.all)
 
-                    if needsScrollView {
-                        ScrollView {
-                            messageMenu(row)
+                        if needsScrollView {
+                            ScrollView {
+                                messageMenu(row)
+                            }
+                            .introspectScrollView { scrollView in
+                                DispatchQueue.main.async {
+                                    menuScrollView = scrollView
+                                }
+                            }
+                            .opacity(readyToShowScrollView ? 1 : 0)
                         }
-                        .introspectScrollView { scrollView in
-                            DispatchQueue.main.async {
-                                self.menuScrollView = scrollView
+                        if !needsScrollView || !readyToShowScrollView {
+                            messageMenu(row)
+                                .position(menuCellPosition)
+                        }
+                    }
+                    .onAppear {
+                        DispatchQueue.main.async {
+                            if let frame = cellFrames[row.id] {
+                                showMessageMenu(frame)
                             }
                         }
-                        .opacity(readyToShowScrollView ? 1 : 0)
                     }
-                    if !needsScrollView || !readyToShowScrollView {
-                        messageMenu(row)
-                            .position(menuCellPosition)
+                    .onTapGesture {
+                        hideMessageMenu()
                     }
-                }
-                .onAppear {
-                    DispatchQueue.main.async {
-                        if let frame = cellFrames[row.id] {
-                            showMessageMenu(frame)
-                        }
-                    }
-                }
-                .onTapGesture {
-                    hideMessageMenu()
                 }
             }
-        }
-        .onPreferenceChange(MessageMenuPreferenceKey.self) {
-            self.cellFrames = $0
-        }
-        .onTapGesture {
-            globalFocusState.focus = nil
-        }
-        .onAppear {
-            viewModel.didSendMessage = didSendMessage
-            inputViewModel.didSendMessage = { value in
-                didSendMessage(value)
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    NotificationCenter.default.post(name: .onScrollToBottom, object: nil)
+            .onPreferenceChange(MessageMenuPreferenceKey.self) {
+                cellFrames = $0
+            }
+            .onTapGesture {
+                globalFocusState.focus = nil
+            }
+            .onAppear {
+                viewModel.didSendMessage = didSendMessage
+                inputViewModel.didSendMessage = { value in
+                    didSendMessage(value)
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        NotificationCenter.default.post(name: .onScrollToBottom, object: nil)
+                    }
                 }
             }
-        }
     }
 
     func messageMenu(_ row: MessageRow) -> some View {
@@ -207,16 +210,22 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
             menuButtonsSize: $menuButtonsSize,
             alignment: row.message.user.isCurrentUser ? .right : .left,
             leadingPadding: avatarSize + MessageView.horizontalAvatarPadding * 2,
-            trailingPadding: MessageView.statusViewSize + MessageView.horizontalStatusPadding) {
+            trailingPadding: MessageView.statusViewSize + MessageView.horizontalStatusPadding,
+            mainButton: {
                 ChatMessageView(viewModel: viewModel, messageBuilder: messageBuilder, row: row, avatarSize: avatarSize, messageUseMarkdown: messageUseMarkdown, isDisplayingMessageMenu: true)
                     .onTapGesture {
                         hideMessageMenu()
                     }
-            } onAction: { action in
+            },
+            onAction: { action in
                 onMessageMenuAction(row: row, action: action)
-            }
-            .frame(height: menuButtonsSize.height + (cellFrames[row.id]?.height ?? 0), alignment: .top)
-            .opacity(menuCellOpacity)
+            },
+            isReplyEnabled: row.message.isReplyEnabled,
+            isDeleteEnabled: row.message.isDeleteEnabled && deleteAction != nil,
+            isViewEnabled: row.message.isViewEnabled && viewMessageAction != nil
+        )
+        .frame(height: menuButtonsSize.height + (cellFrames[row.id]?.height ?? 0), alignment: .top)
+        .opacity(menuCellOpacity)
     }
 
     func showMessageMenu(_ cellFrame: CGRect) {
@@ -224,20 +233,18 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
             let wholeMenuHeight = menuButtonsSize.height + cellFrame.height
             let needsScrollTemp = wholeMenuHeight > UIScreen.main.bounds.height - safeAreaInsets.top - safeAreaInsets.bottom
 
-            menuCellPosition = CGPoint(x: cellFrame.midX, y: cellFrame.minY + wholeMenuHeight/2 - safeAreaInsets.top)
+            menuCellPosition = CGPoint(x: cellFrame.midX, y: cellFrame.minY + wholeMenuHeight / 2 - safeAreaInsets.top)
             menuCellOpacity = 1
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.01) {
                 var finalCellPosition = menuCellPosition
                 if needsScrollTemp ||
                     cellFrame.minY + wholeMenuHeight + safeAreaInsets.bottom > UIScreen.main.bounds.height {
-
-                    finalCellPosition = CGPoint(x: cellFrame.midX, y: UIScreen.main.bounds.height - wholeMenuHeight/2 - safeAreaInsets.top - safeAreaInsets.bottom
-                    )
+                    finalCellPosition = CGPoint(x: cellFrame.midX, y: UIScreen.main.bounds.height - wholeMenuHeight / 2 - safeAreaInsets.top - safeAreaInsets.bottom)
                 }
 
                 withAnimation(.linear(duration: 0.1)) {
-                    menuBgOpacity = 0.9
+                    menuBgOpacity = 0.7
                     menuCellPosition = finalCellPosition
                     isShowingMenu = true
                 }
@@ -247,7 +254,7 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
                 readyToShowScrollView = true
-                if let menuScrollView = menuScrollView {
+                if let menuScrollView {
                     menuScrollView.contentOffset = CGPoint(x: 0, y: menuScrollView.contentSize.height - menuScrollView.frame.height + safeAreaInsets.bottom)
                 }
             }
@@ -275,13 +282,17 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
         case .reply:
             inputViewModel.attachments.replyMessage = row.message.toReplyMessage()
             globalFocusState.focus = .uuid(inputFieldId)
+        case .delete:
+            deleteAction?(row.message)
+        case .view:
+            viewMessageAction?(row.message)
         }
     }
 }
 
 private extension ChatView {
     static func mapMessages(_ messages: [Message]) -> [MessagesSection] {
-        let dates = Set(messages.map({ $0.createdAt.startOfDay() }))
+        let dates = Set(messages.map { $0.createdAt.startOfDay() })
             .sorted()
             .reversed()
         var result: [MessagesSection] = []
@@ -289,7 +300,7 @@ private extension ChatView {
         for date in dates {
             let section = MessagesSection(
                 date: date,
-                rows: wrapMessages(messages.filter({ $0.createdAt.isSameDay(date) }))
+                rows: wrapMessages(messages.filter { $0.createdAt.isSameDay(date) })
             )
             result.append(section)
         }
@@ -323,7 +334,6 @@ private extension ChatView {
 }
 
 public extension ChatView {
-
     func avatarSize(avatarSize: CGFloat) -> ChatView {
         var view = self
         view.avatarSize = avatarSize
@@ -357,36 +367,44 @@ public extension ChatView {
 }
 
 public extension ChatView where MessageContent == EmptyView {
-
     init(messages: [Message],
          didSendMessage: @escaping (DraftMessage) -> Void,
-         inputViewBuilder: @escaping InputViewBuilderClosure) {
+         inputViewBuilder: @escaping InputViewBuilderClosure,
+         deleteAction: DeleteActionClosure? = nil,
+         viewMessageAction: ViewMessageActionClosure? = nil) {
         self.didSendMessage = didSendMessage
-        self.sections = ChatView.mapMessages(messages)
-        self.ids = messages.map { $0.id }
+        sections = ChatView.mapMessages(messages)
+        ids = messages.map(\.id)
         self.inputViewBuilder = inputViewBuilder
+        self.deleteAction = deleteAction
+        self.viewMessageAction = viewMessageAction
     }
 }
 
 public extension ChatView where InputViewContent == EmptyView {
-
     init(messages: [Message],
          didSendMessage: @escaping (DraftMessage) -> Void,
-         messageBuilder: @escaping MessageBuilderClosure) {
+         messageBuilder: @escaping MessageBuilderClosure,
+         deleteAction: DeleteActionClosure? = nil,
+         viewMessageAction: ViewMessageActionClosure? = nil) {
         self.didSendMessage = didSendMessage
-        self.sections = ChatView.mapMessages(messages)
-        self.ids = messages.map { $0.id }
+        sections = ChatView.mapMessages(messages)
+        ids = messages.map(\.id)
         self.messageBuilder = messageBuilder
+        self.deleteAction = deleteAction
+        self.viewMessageAction = viewMessageAction
     }
 }
 
 public extension ChatView where MessageContent == EmptyView, InputViewContent == EmptyView {
-
     init(messages: [Message],
-         didSendMessage: @escaping (DraftMessage) -> Void) {
+         didSendMessage: @escaping (DraftMessage) -> Void,
+         deleteAction: DeleteActionClosure? = nil,
+         viewMessageAction: ViewMessageActionClosure? = nil) {
         self.didSendMessage = didSendMessage
-        self.sections = ChatView.mapMessages(messages)
-        self.ids = messages.map { $0.id }
+        self.deleteAction = deleteAction
+        self.viewMessageAction = viewMessageAction
+        sections = ChatView.mapMessages(messages)
+        ids = messages.map(\.id)
     }
 }
-

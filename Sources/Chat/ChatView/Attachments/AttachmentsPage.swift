@@ -1,11 +1,10 @@
 //
-//  Created by Alex.M on 20.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 struct AttachmentsPage: View {
-
     @EnvironmentObject var mediaPagesViewModel: FullscreenMediaPagesViewModel
     @Environment(\.chatTheme) private var theme
 

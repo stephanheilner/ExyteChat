@@ -1,8 +1,5 @@
 //
-//  ChatTheme.swift
-//  
-//
-//  Created by Alisa Mylnikova on 31.01.2023.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
@@ -20,12 +17,12 @@ extension EnvironmentValues {
 
 public extension View {
     func chatTheme(_ theme: ChatTheme) -> some View {
-        self.environment(\.chatTheme, theme)
+        environment(\.chatTheme, theme)
     }
 
     func chatTheme(colors: ChatTheme.Colors = .init(),
                    images: ChatTheme.Images = .init()) -> some View {
-        self.environment(\.chatTheme, ChatTheme(colors: colors, images: images))
+        environment(\.chatTheme, ChatTheme(colors: colors, images: images))
     }
 }
 
@@ -60,22 +57,20 @@ public struct ChatTheme {
 
         public var recordDot: Color
 
-        public init(
-            grayStatus: Color = Color(hex: "AFB3B8"),
-            errorStatus: Color = Color.red,
-            inputLightContextBackground: Color = Color(hex: "F2F3F5"),
-            inputDarkContextBackground: Color = Color(hex: "F2F3F5").opacity(0.12),
-            mainBackground: Color = .white,
-            buttonBackground: Color = Color(hex: "989EAC"),
-            addButtonBackground: Color = Color(hex: "#4F5055"),
-            sendButtonBackground: Color = Color(hex: "#4962FF"),
-            myMessage: Color = Color(hex: "4962FF"),
-            friendMessage: Color = Color(hex: "EBEDF0"),
-            textLightContext: Color = Color.black,
-            textDarkContext: Color = Color.white,
-            textMediaPicker: Color = Color(hex: "818C99"),
-            recordDot: Color = Color(hex: "F62121")
-        ) {
+        public init(grayStatus: Color = Color(hex: "AFB3B8"),
+                    errorStatus: Color = Color.red,
+                    inputLightContextBackground: Color = Color(hex: "F2F3F5"),
+                    inputDarkContextBackground: Color = Color(hex: "F2F3F5").opacity(0.12),
+                    mainBackground: Color = .white,
+                    buttonBackground: Color = Color(hex: "989EAC"),
+                    addButtonBackground: Color = Color(hex: "#4F5055"),
+                    sendButtonBackground: Color = Color(hex: "#4962FF"),
+                    myMessage: Color = Color(hex: "4962FF"),
+                    friendMessage: Color = Color(hex: "EBEDF0"),
+                    textLightContext: Color = Color.black,
+                    textDarkContext: Color = Color.white,
+                    textMediaPicker: Color = Color(hex: "818C99"),
+                    recordDot: Color = Color(hex: "F62121")) {
             self.grayStatus = grayStatus
             self.errorStatus = errorStatus
             self.inputLightContextBackground = inputLightContextBackground
@@ -94,7 +89,6 @@ public struct ChatTheme {
     }
 
     public struct Images {
-
         public struct AttachMenu {
             public var camera: Image
             public var contact: Image
@@ -176,125 +170,123 @@ public struct ChatTheme {
         public var recordAudio: RecordAudio
         public var reply: Reply
 
-        public init(
-            camera: Image? = nil,
-            contact: Image? = nil,
-            document: Image? = nil,
-            location: Image? = nil,
-            photo: Image? = nil,
-            pickDocument: Image? = nil,
-            pickLocation: Image? = nil,
-            pickPhoto: Image? = nil,
-            add: Image? = nil,
-            arrowSend: Image? = nil,
-            attach: Image? = nil,
-            attachCamera: Image? = nil,
-            microphone: Image? = nil,
-            fullscreenPlay: Image? = nil,
-            fullscreenPause: Image? = nil,
-            fullscreenMute: Image? = nil,
-            fullscreenUnmute: Image? = nil,
-            chevronDown: Image? = nil,
-            chevronRight: Image? = nil,
-            cross: Image? = nil,
-            attachedDocument: Image? = nil,
-            checkmarks: Image? = nil,
-            error: Image? = nil,
-            muteVideo: Image? = nil,
-            pauseAudio: Image? = nil,
-            pauseVideo: Image? = nil,
-            playAudio: Image? = nil,
-            playVideo: Image? = nil,
-            sending: Image? = nil,
-            delete: Image? = nil,
-            edit: Image? = nil,
-            forward: Image? = nil,
-            reply: Image? = nil,
-            retry: Image? = nil,
-            save: Image? = nil,
-            select: Image? = nil,
-            cancelRecord: Image? = nil,
-            deleteRecord: Image? = nil,
-            lockRecord: Image? = nil,
-            pauseRecord: Image? = nil,
-            playRecord: Image? = nil,
-            sendRecord: Image? = nil,
-            stopRecord: Image? = nil,
-            cancelReply: Image? = nil,
-            replyToMessage: Image? = nil,
-            backButton: Image? = nil,
-            scrollToBottom: Image? = nil
-        ) {
-            self.backButton = backButton ?? Image("backArrow", bundle: .current)
-            self.scrollToBottom = scrollToBottom ?? Image("scrollToBottom", bundle: .current)
+        public init(camera: Image? = nil,
+                    contact: Image? = nil,
+                    document: Image? = nil,
+                    location: Image? = nil,
+                    photo: Image? = nil,
+                    pickDocument: Image? = nil,
+                    pickLocation: Image? = nil,
+                    pickPhoto: Image? = nil,
+                    add: Image? = nil,
+                    arrowSend: Image? = nil,
+                    attach: Image? = nil,
+                    attachCamera: Image? = nil,
+                    microphone: Image? = nil,
+                    fullscreenPlay: Image? = nil,
+                    fullscreenPause: Image? = nil,
+                    fullscreenMute: Image? = nil,
+                    fullscreenUnmute: Image? = nil,
+                    chevronDown: Image? = nil,
+                    chevronRight: Image? = nil,
+                    cross: Image? = nil,
+                    attachedDocument: Image? = nil,
+                    checkmarks: Image? = nil,
+                    error: Image? = nil,
+                    muteVideo: Image? = nil,
+                    pauseAudio: Image? = nil,
+                    pauseVideo: Image? = nil,
+                    playAudio: Image? = nil,
+                    playVideo: Image? = nil,
+                    sending: Image? = nil,
+                    delete: Image? = nil,
+                    edit: Image? = nil,
+                    forward: Image? = nil,
+                    reply: Image? = nil,
+                    retry: Image? = nil,
+                    save: Image? = nil,
+                    select: Image? = nil,
+                    cancelRecord: Image? = nil,
+                    deleteRecord: Image? = nil,
+                    lockRecord: Image? = nil,
+                    pauseRecord: Image? = nil,
+                    playRecord: Image? = nil,
+                    sendRecord: Image? = nil,
+                    stopRecord: Image? = nil,
+                    cancelReply: Image? = nil,
+                    replyToMessage: Image? = nil,
+                    backButton: Image? = nil,
+                    scrollToBottom: Image? = nil) {
+            self.backButton = backButton ?? Image(systemName: "arrow.backward")
+            self.scrollToBottom = scrollToBottom ?? Image(systemName: "chevron.down")
 
-            self.attachMenu = AttachMenu(
-                camera: camera ?? Image("camera", bundle: .current),
-                contact: contact ?? Image("contact", bundle: .current),
-                document: document ?? Image("document", bundle: .current),
-                location: location ?? Image("location", bundle: .current),
-                photo: photo ?? Image("photo", bundle: .current),
-                pickDocument: pickDocument ?? Image("pickDocument", bundle: .current),
-                pickLocation: pickLocation ?? Image("pickLocation", bundle: .current),
-                pickPhoto: pickPhoto ?? Image("pickPhoto", bundle: .current)
+            attachMenu = AttachMenu(
+                camera: camera ?? Image(systemName: "camera"),
+                contact: contact ?? Image(systemName: "person.fill"),
+                document: document ?? Image(systemName: "doc.plaintext.fill"),
+                location: location ?? Image(systemName: "mappin"),
+                photo: photo ?? Image(systemName: "photo"),
+                pickDocument: pickDocument ?? Image(systemName: "doc.plaintext.fill"),
+                pickLocation: pickLocation ?? Image(systemName: "mappin.circle.fill"),
+                pickPhoto: pickPhoto ?? Image(systemName: "photo.fill")
             )
 
-            self.inputView = InputView(
-                add: add ?? Image("add", bundle: .current),
-                arrowSend: arrowSend ?? Image("arrowSend", bundle: .current),
-                attach: attach ?? Image("attach", bundle: .current),
-                attachCamera: attachCamera ?? Image("attachCamera", bundle: .current),
-                microphone: microphone ?? Image("microphone", bundle: .current)
+            inputView = InputView(
+                add: add ?? Image(systemName: "plus"),
+                arrowSend: arrowSend ?? Image(systemName: "arrow.up"),
+                attach: attach ?? Image(systemName: "paperclip"),
+                attachCamera: attachCamera ?? Image(systemName: "camera"),
+                microphone: microphone ?? Image(systemName: "mic")
             )
 
-            self.fullscreenMedia = FullscreenMedia(
+            fullscreenMedia = FullscreenMedia(
                 play: fullscreenPlay ?? Image(systemName: "play.fill"),
                 pause: fullscreenPause ?? Image(systemName: "pause.fill"),
                 mute: fullscreenMute ?? Image(systemName: "speaker.slash.fill"),
                 unmute: fullscreenUnmute ?? Image(systemName: "speaker.fill")
             )
 
-            self.mediaPicker = MediaPicker(
-                chevronDown: chevronDown ?? Image("chevronDown", bundle: .current),
-                chevronRight: chevronRight ?? Image("chevronRight", bundle: .current),
-                cross: cross ?? Image("cross", bundle: .current)
+            mediaPicker = MediaPicker(
+                chevronDown: chevronDown ?? Image(systemName: "chevron.down"),
+                chevronRight: chevronRight ?? Image(systemName: "chevron.right"),
+                cross: cross ?? Image(systemName: "xmark")
             )
 
-            self.message = Message(
-                attachedDocument: attachedDocument ?? Image("attachedDocument", bundle: .current),
-                checkmarks: checkmarks ?? Image("checkmarks", bundle: .current),
-                error: error ?? Image("error", bundle: .current),
-                muteVideo: muteVideo ?? Image("muteVideo", bundle: .current),
-                pauseAudio: pauseAudio ?? Image("pauseAudio", bundle: .current),
+            message = Message(
+                attachedDocument: attachedDocument ?? Image(systemName: "doc.fill"),
+                checkmarks: checkmarks ?? Image(systemName: "checkmark"),
+                error: error ?? Image(systemName: "exclamationmark.octagon.fill"),
+                muteVideo: muteVideo ?? Image(systemName: "speaker.slash"),
+                pauseAudio: pauseAudio ?? Image(systemName: "pause.fill"),
                 pauseVideo: pauseVideo ?? Image(systemName: "pause.circle.fill"),
-                playAudio: playAudio ?? Image("playAudio", bundle: .current),
+                playAudio: playAudio ?? Image(systemName: "play.fill"),
                 playVideo: playVideo ?? Image(systemName: "play.circle.fill"),
-                sending: sending ?? Image("sending", bundle: .current)
+                sending: sending ?? Image(systemName: "clock")
             )
 
-            self.messageMenu = MessageMenu(
-                delete: delete ?? Image("delete", bundle: .current),
-                edit: edit ?? Image("edit", bundle: .current),
-                forward: forward ?? Image("forward", bundle: .current),
-                reply: reply ?? Image("reply", bundle: .current),
-                retry: retry ?? Image("retry", bundle: .current),
-                save: save ?? Image("save", bundle: .current),
-                select: select ?? Image("select", bundle: .current)
+            messageMenu = MessageMenu(
+                delete: delete ?? Image(systemName: "trash"),
+                edit: edit ?? Image(systemName: "pencil"),
+                forward: forward ?? Image(systemName: "arrow.turn.up.right"),
+                reply: reply ?? Image(systemName: "arrow.turn.up.left"),
+                retry: retry ?? Image(systemName: "arrow.triangle.2.circlepath"),
+                save: save ?? Image(systemName: "square.and.arrow.down"),
+                select: select ?? Image(systemName: "checkmark.circle")
             )
 
-            self.recordAudio = RecordAudio(
-                cancelRecord: cancelRecord ?? Image("cancelRecord", bundle: .current),
-                deleteRecord: deleteRecord ?? Image("deleteRecord", bundle: .current),
-                lockRecord: lockRecord ?? Image("lockRecord", bundle: .current),
-                pauseRecord: pauseRecord ?? Image("pauseRecord", bundle: .current),
-                playRecord: playRecord ?? Image("playRecord", bundle: .current),
-                sendRecord: sendRecord ?? Image("sendRecord", bundle: .current),
-                stopRecord: stopRecord ?? Image("stopRecord", bundle: .current)
+            recordAudio = RecordAudio(
+                cancelRecord: cancelRecord ?? Image(systemName: "arrow.backward"),
+                deleteRecord: deleteRecord ?? Image(systemName: "trash"),
+                lockRecord: lockRecord ?? Image(systemName: "lock"),
+                pauseRecord: pauseRecord ?? Image(systemName: "pause.fill"),
+                playRecord: playRecord ?? Image(systemName: "play.fill"),
+                sendRecord: sendRecord ?? Image(systemName: "square.and.arrow.up"),
+                stopRecord: stopRecord ?? Image(systemName: "stop.fill")
             )
 
             self.reply = Reply(
-                cancelReply: cancelReply ?? Image("cancelReply", bundle: .current),
-                replyToMessage: replyToMessage ?? Image("replyToMessage", bundle: .current)
+                cancelReply: cancelReply ?? Image(systemName: "xmark.circle"),
+                replyToMessage: replyToMessage ?? Image(systemName: "arrow.turn.up.left")
             )
         }
     }

@@ -1,18 +1,14 @@
 //
-//  File.swift
-//  
-//
-//  Created by Alisa Mylnikova on 02.06.2023.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 import UIKit
 
 public extension View {
-
     /// for this to work make sure all the other scrollViews have scrollsToTop = false
-    func onStatusBarTap(onTap: @escaping () -> ()) -> some View {
-        self.overlay {
+    func onStatusBarTap(onTap: @escaping () -> Void) -> some View {
+        overlay {
             StatusBarTabDetector(onTap: onTap)
                 .offset(y: UIScreen.main.bounds.height)
         }
@@ -20,8 +16,7 @@ public extension View {
 }
 
 private struct StatusBarTabDetector: UIViewRepresentable {
-
-    var onTap: () -> ()
+    var onTap: () -> Void
 
     func makeUIView(context: Context) -> UIView {
         let fakeScrollView = UIScrollView()
@@ -32,21 +27,20 @@ private struct StatusBarTabDetector: UIViewRepresentable {
         return fakeScrollView
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {}
+    func updateUIView(_: UIView, context _: Context) {}
 
     func makeCoordinator() -> Coordinator {
         Coordinator(onTap: onTap)
     }
 
     class Coordinator: NSObject, UIScrollViewDelegate {
+        var onTap: () -> Void
 
-        var onTap: () -> ()
-
-        init(onTap: @escaping () -> ()) {
+        init(onTap: @escaping () -> Void) {
             self.onTap = onTap
         }
 
-        func scrollViewShouldScrollToTop(_ scrollView: UIScrollView) -> Bool {
+        func scrollViewShouldScrollToTop(_: UIScrollView) -> Bool {
             onTap()
             return false
         }

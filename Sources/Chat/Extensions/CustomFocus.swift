@@ -1,5 +1,5 @@
 //
-//  Created by Alex.M on 23.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
@@ -11,9 +11,9 @@ struct CustomFocus<T: Hashable>: ViewModifier {
     var equals: T
 
     init(_ binding: Binding<T>, equals: T) {
-        self._binding = binding
+        _binding = binding
         self.equals = equals
-        self.focus = (binding.wrappedValue == equals)
+        focus = (binding.wrappedValue == equals)
     }
 
     func body(content: Content) -> some View {
@@ -31,7 +31,7 @@ struct CustomFocus<T: Hashable>: ViewModifier {
 }
 
 extension View {
-    func customFocus<Value>(_ binding: Binding<Value>, equals value: Value) -> some View where Value : Hashable {
+    func customFocus<Value>(_ binding: Binding<Value>, equals value: Value) -> some View where Value: Hashable {
         modifier(CustomFocus(binding, equals: value))
     }
 }

@@ -1,12 +1,11 @@
 //
-//  Created by Alex.M on 20.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
 import SwiftUI
 
 struct FrameGetter: ViewModifier {
-
     @Binding var frame: CGRect
 
     func body(content: Content) -> some View {
@@ -16,8 +15,8 @@ struct FrameGetter: ViewModifier {
                     DispatchQueue.main.async {
                         let rect = proxy.frame(in: .global)
                         // This avoids an infinite layout loop
-                        if rect.integral != self.frame.integral {
-                            self.frame = rect
+                        if rect.integral != frame.integral {
+                            frame = rect
                         }
                     }
                     return AnyView(EmptyView())
@@ -33,9 +32,9 @@ struct SizeGetter: ViewModifier {
         content
             .background(
                 GeometryReader { proxy -> Color in
-                    if proxy.size != self.size {
+                    if proxy.size != size {
                         DispatchQueue.main.async {
-                            self.size = proxy.size
+                            size = proxy.size
                         }
                     }
                     return Color.clear
@@ -44,13 +43,12 @@ struct SizeGetter: ViewModifier {
     }
 }
 
-extension View {
-
-    public func frameGetter(_ frame: Binding<CGRect>) -> some View {
+public extension View {
+    func frameGetter(_ frame: Binding<CGRect>) -> some View {
         modifier(FrameGetter(frame: frame))
     }
 
-    public func sizeGetter(_ size: Binding<CGSize>) -> some View {
+    func sizeGetter(_ size: Binding<CGSize>) -> some View {
         modifier(SizeGetter(size: size))
     }
 }
@@ -61,7 +59,7 @@ struct MessageMenuPreferenceKey: PreferenceKey {
     static var defaultValue: Value = [:]
 
     static func reduce(value: inout Value, nextValue: () -> Value) {
-        value.merge(nextValue()) { (_, new) in new }
+        value.merge(nextValue()) { _, new in new }
     }
 }
 

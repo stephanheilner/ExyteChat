@@ -1,12 +1,11 @@
 //
-//  Created by Alex.M on 27.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
 import UIKit
 
 final class MockChatData {
-
     // Alternative for avatars `https://ui-avatars.com/api/?name=Tim`
     let system = MockUser(uid: "0", name: "System")
     let tim = MockUser(
@@ -38,7 +37,7 @@ final class MockChatData {
             sender: sender,
             createdAt: date,
             status: sender.isCurrentUser ? .read : nil,
-            text: shouldGenerateText ? Lorem.sentence(nbWords: Int.random(in: 3...10), useMarkdown: true) : "",
+            text: shouldGenerateText ? Lorem.sentence(nbWords: Int.random(in: 3 ... 10), useMarkdown: true) : "",
             images: images,
             videos: [],
             recording: nil,
@@ -52,7 +51,7 @@ final class MockChatData {
         }
 
         let count = Int.random(min: 1, max: 5)
-        return (0...count).map { _ in
+        return (0 ... count).map { _ in
             randomMockImage()
         }
     }
@@ -67,7 +66,7 @@ final class MockChatData {
     }
 
     func randomColorHex() -> String {
-        (0...6)
+        (0 ... 6)
             .map { _ in randomHexChar() }
             .joined()
     }
@@ -80,10 +79,8 @@ private extension MockChatData {
     }
 }
 
-class AssetExtractor {
-
+enum AssetExtractor {
     static func createLocalUrl(forImageNamed name: String) -> URL? {
-
         let fileManager = FileManager.default
         let cacheDirectory = fileManager.urls(for: .cachesDirectory, in: .userDomainMask)[0]
         let url = cacheDirectory.appendingPathComponent("\(name).pdf")
@@ -100,5 +97,4 @@ class AssetExtractor {
 
         return url
     }
-
 }

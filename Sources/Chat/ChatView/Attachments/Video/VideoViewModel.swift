@@ -1,14 +1,13 @@
 //
-//  Created by Alex.M on 21.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import Foundation
-import Combine
 import AVKit
+import Combine
+import Foundation
 
 // TODO: Create option "download video before playing"
 final class VideoViewModel: ObservableObject {
-
     @Published var attachment: VideoAttachment
     @Published var player: AVPlayer?
 
@@ -21,7 +20,7 @@ final class VideoViewModel: ObservableObject {
 
     func onStart() {
         if player == nil {
-            self.player = AVPlayer(url: attachment.full)
+            player = AVPlayer(url: attachment.full)
 
             NotificationCenter.default.addObserver(self, selector: #selector(finishVideo), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: nil)
         }
@@ -46,13 +45,13 @@ final class VideoViewModel: ObservableObject {
 }
 
 private extension VideoViewModel {
-
     func playVideo() {
         player?.play()
         isPlaying = player?.isPlaying ?? false
     }
 
-    @objc func finishVideo() {
+    @objc
+    func finishVideo() {
         player?.seek(to: CMTime(seconds: 0, preferredTimescale: 10))
         isPlaying = false
     }

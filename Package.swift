@@ -6,13 +6,14 @@ import PackageDescription
 let package = Package(
     name: "Chat",
     platforms: [
-        .iOS(.v16)
+        .iOS(.v16),
     ],
     products: [
         .library(
             name: "Chat",
             type: .dynamic,
-            targets: ["Chat"]),
+            targets: ["Chat"]
+        ),
     ],
     dependencies: [
         .package(
@@ -39,11 +40,12 @@ let package = Package(
                 .product(name: "Introspect", package: "SwiftUI-Introspect"),
                 .product(name: "ExyteMediaPicker", package: "MediaPicker"),
                 .product(name: "FloatingButton", package: "FloatingButton"),
-                .product(name: "ActivityIndicatorView", package: "ActivityIndicatorView")
+                .product(name: "ActivityIndicatorView", package: "ActivityIndicatorView"),
             ]
         ),
         .testTarget(
             name: "ChatTests",
-            dependencies: ["Chat"]),
+            dependencies: ["Chat"]
+        ),
     ]
 )

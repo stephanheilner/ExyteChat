@@ -1,8 +1,5 @@
 //
-//  Message.swift
-//  Chat
-//
-//  Created by Alisa Mylnikova on 20.04.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
@@ -17,6 +14,9 @@ public struct Message {
     public var attachments: [any Attachment]
     public var recording: Recording?
     public var replyMessage: ReplyMessage?
+    public var isReplyEnabled: Bool = true
+    public var isDeleteEnabled: Bool = true
+    public var isViewEnabled: Bool = true
 
     public init(id: String,
                 user: User,
@@ -25,8 +25,10 @@ public struct Message {
                 text: String = "",
                 attachments: [any Attachment] = [],
                 recording: Recording? = nil,
-                replyMessage: ReplyMessage? = nil) {
-
+                replyMessage: ReplyMessage? = nil,
+                isReplyEnabled: Bool = true,
+                isDeleteEnabled: Bool = true,
+                isViewEnabled: Bool = true) {
         self.id = id
         self.user = user
         self.status = status
@@ -35,6 +37,9 @@ public struct Message {
         self.attachments = attachments
         self.recording = recording
         self.replyMessage = replyMessage
+        self.isReplyEnabled = isReplyEnabled
+        self.isDeleteEnabled = isDeleteEnabled
+        self.isViewEnabled = isViewEnabled
     }
 }
 
@@ -72,7 +77,6 @@ public struct ReplyMessage {
                 text: String = "",
                 attachments: [any Attachment] = [],
                 recording: Recording? = nil) {
-
         self.id = id
         self.user = user
         self.text = text
@@ -86,7 +90,6 @@ public struct ReplyMessage {
 }
 
 public extension Message {
-
     func toReplyMessage() -> ReplyMessage {
         ReplyMessage(id: id, user: user, text: text, attachments: attachments, recording: recording)
     }

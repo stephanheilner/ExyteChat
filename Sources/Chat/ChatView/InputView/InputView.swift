@@ -1,12 +1,9 @@
 //
-//  InputView.swift
-//  Chat
-//
-//  Created by Alex.M on 25.05.2022.
+//  Created by Alisa Mylnikov
 //
 
-import SwiftUI
 import ExyteMediaPicker
+import SwiftUI
 
 public enum InputViewStyle {
     case message
@@ -72,7 +69,6 @@ public struct Recording {
 }
 
 struct InputView: View {
-
     @Environment(\.chatTheme) private var theme
     @Environment(\.mediaPickerTheme) private var pickerTheme
 
@@ -485,7 +481,7 @@ struct InputView: View {
                     cancelGesture = false
                     tapDelayTimer = Timer.scheduledTimer(withTimeInterval: tapDelay, repeats: false) { _ in
                         if state != .isRecordingTap {
-                            self.onAction(.recordAudioHold)
+                            onAction(.recordAudioHold)
                         }
                     }
                 }
@@ -496,26 +492,24 @@ struct InputView: View {
                     onAction(.recordAudioLock)
                 }
 
-                if value.location.x < UIScreen.main.bounds.width/2,
+                if value.location.x < UIScreen.main.bounds.width / 2,
                    value.location.y > recordButtonFrame.minY {
                     cancelGesture = true
                     onAction(.deleteRecord)
                 }
             }
-            .onEnded() { value in
+            .onEnded { value in
                 if !cancelGesture {
                     tapDelayTimer = nil
                     if recordButtonFrame.contains(value.location) {
-                        if let dragStart = dragStart, Date().timeIntervalSince(dragStart) < tapDelay {
+                        if let dragStart, Date().timeIntervalSince(dragStart) < tapDelay {
                             onAction(.recordAudioTap)
                         } else if state != .waitingForRecordingPermission {
                             onAction(.send)
                         }
-                    }
-                    else if lockRecordFrame.contains(value.location) {
+                    } else if lockRecordFrame.contains(value.location) {
                         onAction(.recordAudioLock)
-                    }
-                    else if deleteRecordFrame.contains(value.location) {
+                    } else if deleteRecordFrame.contains(value.location) {
                         onAction(.deleteRecord)
                     } else {
                         onAction(.send)

@@ -1,11 +1,10 @@
 //
-//  Created by Alex.M on 14.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 struct TextInputView: View {
-
     @Environment(\.chatTheme) private var theme
 
     @EnvironmentObject private var globalFocusState: GlobalFocusState

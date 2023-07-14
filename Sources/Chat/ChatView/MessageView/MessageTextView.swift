@@ -1,19 +1,15 @@
 //
-//  SwiftUIView.swift
-//  
-//
-//  Created by Alex.M on 07.07.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 struct MessageTextView: View {
-
     let text: String?
     let messageUseMarkdown: Bool
 
     var body: some View {
-        if let text = text, !text.isEmpty {
+        if let text, !text.isEmpty {
             textView(text)
         }
     }

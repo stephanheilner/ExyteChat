@@ -1,9 +1,9 @@
 //
-//  Created by Alex.M on 22.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import Foundation
 import Combine
+import Foundation
 
 final class FullscreenMediaPagesViewModel: ObservableObject {
     var attachments: [any Attachment]

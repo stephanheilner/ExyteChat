@@ -1,13 +1,12 @@
 //
-//  Created by Alex.M on 20.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import Foundation
 import Combine
 import ExyteMediaPicker
+import Foundation
 
 final class InputViewModel: ObservableObject {
-    
     @Published var attachments = InputViewAttachments()
     @Published var state: InputViewState = .empty
 
@@ -116,16 +115,15 @@ final class InputViewModel: ObservableObject {
 }
 
 private extension InputViewModel {
-
     func validateDraft() {
         DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            if !self.attachments.text.isEmpty || !self.attachments.medias.isEmpty {
-                self.state = .hasTextOrMedia
-            } else if self.attachments.text.isEmpty,
-                      self.attachments.medias.isEmpty,
-                      self.attachments.recording == nil {
-                self.state = .empty
+            guard let self else { return }
+            if !attachments.text.isEmpty || !attachments.medias.isEmpty {
+                state = .hasTextOrMedia
+            } else if attachments.text.isEmpty,
+                      attachments.medias.isEmpty,
+                      attachments.recording == nil {
+                state = .empty
             }
         }
     }
@@ -160,7 +158,6 @@ private extension InputViewModel {
 }
 
 private extension InputViewModel {
-    
     func mapAttachmentsForSend() -> AnyPublisher<[any Attachment], Never> {
         attachments.medias.publisher
             .receive(on: DispatchQueue.global())

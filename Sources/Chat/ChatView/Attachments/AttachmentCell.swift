@@ -1,11 +1,10 @@
 //
-//  Created by Alex.M on 16.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 struct AttachmentCell: View {
-
     @Environment(\.chatTheme) private var theme
 
     let attachment: any Attachment
@@ -42,7 +41,6 @@ struct AttachmentCell: View {
 }
 
 struct AsyncImageView: View {
-
     let url: URL
 
     var body: some View {

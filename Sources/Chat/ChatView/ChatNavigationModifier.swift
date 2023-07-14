@@ -1,21 +1,17 @@
 //
-//  File.swift
-//  
-//
-//  Created by Alexandra Afonasova on 12.01.2023.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 struct ChatNavigationModifier: ViewModifier {
-
     @Environment(\.presentationMode) private var presentationMode
     @Environment(\.chatTheme) private var theme
-    
+
     let title: String
     let status: String?
     let cover: URL?
-    
+
     func body(content: Content) -> some View {
         content
             .navigationBarBackButtonHidden()
@@ -24,7 +20,7 @@ struct ChatNavigationModifier: ViewModifier {
                 infoToolbarItem
             }
     }
-    
+
     private var backButton: some ToolbarContent {
         ToolbarItem(placement: .navigationBarLeading) {
             Button { presentationMode.wrappedValue.dismiss() } label: {
@@ -32,14 +28,14 @@ struct ChatNavigationModifier: ViewModifier {
             }
         }
     }
-    
+
     private var infoToolbarItem: some ToolbarContent {
         ToolbarItem(placement: .principal) {
             HStack {
                 if let url = cover {
                     CachedAsyncImage(url: url, urlCache: .imageCache) { phase in
                         switch phase {
-                        case .success(let image):
+                        case let .success(image):
                             image
                                 .resizable()
                                 .scaledToFill()
@@ -50,13 +46,13 @@ struct ChatNavigationModifier: ViewModifier {
                     .frame(width: 35, height: 35)
                     .clipShape(Circle())
                 }
-                
+
                 VStack(alignment: .leading, spacing: 0) {
                     Text(title)
                         .fontWeight(.semibold)
                         .font(.headline)
                         .foregroundColor(theme.colors.textLightContext)
-                    if let status = status {
+                    if let status {
                         Text(status)
                             .font(.footnote)
                             .foregroundColor(theme.colors.grayStatus)
@@ -67,5 +63,4 @@ struct ChatNavigationModifier: ViewModifier {
             .padding(.leading, 10)
         }
     }
-    
 }

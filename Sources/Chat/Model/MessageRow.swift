@@ -1,5 +1,5 @@
 //
-//  Created by Alex.M on 08.07.2022.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
@@ -19,6 +19,6 @@ struct MessageRow: Equatable {
 extension MessageRow: Identifiable {
     public typealias ID = String
     public var id: String {
-        return message.id
+        message.id
     }
 }

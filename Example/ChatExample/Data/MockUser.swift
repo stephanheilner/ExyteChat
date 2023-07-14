@@ -1,9 +1,9 @@
 //
-//  Created by Alex.M on 27.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import Foundation
 import Chat
+import Foundation
 
 struct MockUser: Equatable {
     let uid: String

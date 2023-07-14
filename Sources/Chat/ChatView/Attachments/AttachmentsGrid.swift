@@ -1,5 +1,5 @@
 //
-//  Created by Alex.M on 16.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
@@ -19,9 +19,9 @@ struct AttachmentsGrid: View {
         var toShow = attachments
 
         if toShow.count > maxImages {
-            toShow = attachments.prefix(maxImages).map({ $0 })
+            toShow = attachments.prefix(maxImages).map { $0 }
             hidden = "+\(attachments.count - (maxImages - 1))"
-            showMoreAttachmentId = attachments[safe: (maxImages - 1)]?.id
+            showMoreAttachmentId = attachments[safe: maxImages - 1]?.id
         } else {
             hidden = nil
             showMoreAttachmentId = nil
@@ -33,7 +33,7 @@ struct AttachmentsGrid: View {
             single = toShow.first
             grid = toShow.dropFirst().map { $0 }
         }
-        self.onlyOne = attachments.count == 1
+        onlyOne = attachments.count == 1
         self.onTap = onTap
     }
 
@@ -60,7 +60,7 @@ struct AttachmentsGrid: View {
                             .frame(width: 100, height: 100)
                             .clipped()
                             .overlay {
-                                if pair.right.id == showMoreAttachmentId, let hidden = hidden {
+                                if pair.right.id == showMoreAttachmentId, let hidden {
                                     ZStack {
                                         RadialGradient(
                                             colors: [
@@ -88,9 +88,9 @@ struct AttachmentsGrid: View {
 }
 
 private extension AttachmentsGrid {
-    func pair() -> Array<AttachmentsPair> {
-        return stride(from: 0, to: grid.count - 1, by: 2)
-            .map { AttachmentsPair(left: grid[$0], right: grid[$0+1]) }
+    func pair() -> [AttachmentsPair] {
+        stride(from: 0, to: grid.count - 1, by: 2)
+            .map { AttachmentsPair(left: grid[$0], right: grid[$0 + 1]) }
     }
 }
 
@@ -104,48 +104,48 @@ struct AttachmentsPair {
 }
 
 #if DEBUG
-struct AttachmentsGrid_Preview: PreviewProvider {
-    private static let examples = [1, 2, 3, 4, 5, 10]
+    struct AttachmentsGrid_Preview: PreviewProvider {
+        private static let examples = [1, 2, 3, 4, 5, 10]
 
-    static var previews: some View {
-        Group {
-            ForEach(examples, id: \.self) { count in
-                ScrollView {
-                    AttachmentsGrid(attachments: .random(count: count), onTap: { _ in })
-                        .padding()
-                        .background(Color.white)
+        static var previews: some View {
+            Group {
+                ForEach(examples, id: \.self) { count in
+                    ScrollView {
+                        AttachmentsGrid(attachments: .random(count: count), onTap: { _ in })
+                            .padding()
+                            .background(Color.white)
+                    }
                 }
+                .padding()
+                .background(Color.secondary)
             }
-            .padding()
-            .background(Color.secondary)
         }
     }
-}
 
-extension Array where Element == any Attachment {
-    static func random(count: Int) -> [any Attachment] {
-        return Swift.Array(repeating: 0, count: count)
-            .map { _ in randomAttachment() }
-    }
+    extension [any Attachment] {
+        static func random(count: Int) -> [any Attachment] {
+            Swift.Array(repeating: 0, count: count)
+                .map { _ in randomAttachment() }
+        }
 
-    private static func randomAttachment() -> any Attachment {
-        if Int.random(in: 0...3) == 0 {
-            return VideoAttachment.random()
-        } else {
-            return ImageAttachment.random()
+        private static func randomAttachment() -> any Attachment {
+            if Int.random(in: 0 ... 3) == 0 {
+                return VideoAttachment.random()
+            } else {
+                return ImageAttachment.random()
+            }
         }
     }
-}
 
-extension ImageAttachment {
-    static func random() -> ImageAttachment {
-        ImageAttachment(id: UUID().uuidString, url: URL(string: "https://placeimg.com/640/480/sepia")!)
+    extension ImageAttachment {
+        static func random() -> ImageAttachment {
+            ImageAttachment(id: UUID().uuidString, url: URL(string: "https://placeimg.com/640/480/sepia")!)
+        }
     }
-}
 
-extension VideoAttachment {
-    static func random() -> ImageAttachment {
-        ImageAttachment(id: UUID().uuidString, url: URL(string: "https://placeimg.com/640/480/sepia")!)
+    extension VideoAttachment {
+        static func random() -> ImageAttachment {
+            ImageAttachment(id: UUID().uuidString, url: URL(string: "https://placeimg.com/640/480/sepia")!)
+        }
     }
-}
 #endif

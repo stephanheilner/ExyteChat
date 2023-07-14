@@ -1,14 +1,10 @@
 //
-//  FileManager+.swift
-//  
-//
-//  Created by Alisa Mylnikova on 10.03.2023.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
 
 extension FileManager {
-
     static var tempDirPath: URL {
         URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
     }

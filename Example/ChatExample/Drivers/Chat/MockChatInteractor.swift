@@ -1,9 +1,9 @@
 //
-//  Created by Alex.M on 27.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import Foundation
 import Combine
+import Foundation
 
 final class MockChatInteractor: ChatInteractorProtocol {
     private lazy var chatData = MockChatData()
@@ -20,17 +20,17 @@ final class MockChatInteractor: ChatInteractorProtocol {
     var messages: AnyPublisher<[MockMessage], Never> {
         sharedState.eraseToAnyPublisher()
     }
-    
+
     var senders: [MockUser] {
         var members = [chatData.steve, chatData.tim]
         if isActive { members.append(chatData.bob) }
         return members
     }
-    
+
     var otherSenders: [MockUser] {
         senders.filter { !$0.isCurrentUser }
     }
-    
+
     init(isActive: Bool = false) {
         self.isActive = isActive
     }
@@ -67,16 +67,16 @@ final class MockChatInteractor: ChatInteractorProtocol {
 
     func loadNextPage() -> Future<Bool, Never> {
         Future<Bool, Never> { [weak self] promise in
-            guard let self = self, !self.isLoading else {
+            guard let self, !self.isLoading else {
                 promise(.success(false))
                 return
             }
-            self.isLoading = true
+            isLoading = true
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-                guard let self = self else { return }
-                let messages = self.generateStartMessages()
-                self.chatState.value = messages + self.chatState.value
-                self.isLoading = false
+                guard let self else { return }
+                let messages = generateStartMessages()
+                chatState.value = messages + chatState.value
+                isLoading = false
                 promise(.success(true))
             }
         }
@@ -86,10 +86,10 @@ final class MockChatInteractor: ChatInteractorProtocol {
 private extension MockChatInteractor {
     func generateStartMessages() -> [MockMessage] {
         defer {
-            lastDate = lastDate.addingTimeInterval(-(60*60*24))
+            lastDate = lastDate.addingTimeInterval(-(60 * 60 * 24))
         }
-        return (0...10)
-            .map { index in
+        return (0 ... 10)
+            .map { _ in
                 chatData.randomMessage(senders: senders, date: lastDate.randomTime())
             }
             .sorted { lhs, rhs in

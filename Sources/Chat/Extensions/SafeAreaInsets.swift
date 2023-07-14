@@ -1,8 +1,5 @@
 //
-//  SwiftUIView.swift
-//  
-//
-//  Created by Alisa Mylnikova on 31.03.2023.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
@@ -13,9 +10,7 @@ extension UIApplication {
             .compactMap {
                 $0 as? UIWindowScene
             }
-            .flatMap {
-                $0.windows
-            }
+            .flatMap(\.windows)
             .first {
                 $0.isKeyWindow
             }

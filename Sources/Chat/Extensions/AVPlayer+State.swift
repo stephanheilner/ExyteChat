@@ -1,12 +1,12 @@
 //
-//  Created by Alex.M on 22.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import Foundation
 import AVKit
+import Foundation
 
 extension AVPlayer {
     var isPlaying: Bool {
-        return rate != 0 && error == nil
+        rate != 0 && error == nil
     }
 }

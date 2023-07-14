@@ -1,19 +1,16 @@
 //
-//  File.swift
-//  
-//
-//  Created by Alex.M on 07.07.2022.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
 
 private final class BundleToken {
     static let bundle: Bundle = {
-#if SWIFT_PACKAGE
-        return Bundle.module
-#else
-        return Bundle(for: BundleToken.self)
-#endif
+        #if SWIFT_PACKAGE
+            return Bundle.module
+        #else
+            return Bundle(for: BundleToken.self)
+        #endif
     }()
 
     private init() {}

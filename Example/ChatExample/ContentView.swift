@@ -1,5 +1,5 @@
 //
-//  Created by Alex.M on 23.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
@@ -15,7 +15,7 @@ struct ContentView: View {
                             title: "Active chat example"
                         )
                     }
-                    
+
                     NavigationLink("Simple example") {
                         ChatExampleView(title: "Simple example")
                     }

@@ -1,8 +1,5 @@
 //
-//  UIList.swift
-//  
-//
-//  Created by Alisa Mylnikova on 24.02.2023.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
@@ -12,7 +9,6 @@ public extension Notification.Name {
 }
 
 struct UIList<MessageContent: View>: UIViewRepresentable {
-
     typealias MessageBuilderClosure = ChatView<MessageContent, EmptyView>.MessageBuilderClosure
 
     @Environment(\.chatTheme) private var theme
@@ -21,7 +17,7 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
     @ObservedObject var paginationState: PaginationState
 
     @Binding var isScrolledToBottom: Bool
-    @Binding var shouldScrollToTop: () -> ()
+    @Binding var shouldScrollToTop: () -> Void
 
     var messageBuilder: MessageBuilderClosure?
 
@@ -32,7 +28,7 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
 
     @State private var isScrolledToTop = false
 
-    private let updatesQueue = DispatchQueue(label: "updatesQueue")
+    private let updatesQueue = DispatchQueue(label: "updatesQueue", qos: DispatchQoS.background)
     @State private var updateSemaphore = DispatchSemaphore(value: 1)
     @State private var tableSemaphore = DispatchSemaphore(value: 0)
 
@@ -109,16 +105,16 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
 
     func applyEdits(tableView: UITableView, prevSections: [MessagesSection]) -> [MessagesSection] {
         var result = [MessagesSection]()
-        let prevDates = prevSections.map { $0.date }
-        for iPrevDate in 0..<prevDates.count {
+        let prevDates = prevSections.map(\.date)
+        for iPrevDate in 0 ..< prevDates.count {
             let prevDate = prevDates[iPrevDate]
-            guard let section = sections.first(where: { $0.date == prevDate } ),
-                  let prevSection = prevSections.first(where: { $0.date == prevDate } ) else { continue }
+            guard let section = sections.first(where: { $0.date == prevDate }),
+                  let prevSection = prevSections.first(where: { $0.date == prevDate }) else { continue }
 
             var resultRows = [MessageRow]()
-            for iPrevRow in 0..<prevSection.rows.count {
+            for iPrevRow in 0 ..< prevSection.rows.count {
                 let prevRow = prevSection.rows[iPrevRow]
-                guard let row = section.rows.first(where: { $0.message.id == prevRow.message.id } ) else { continue }
+                guard let row = section.rows.first(where: { $0.message.id == prevRow.message.id }) else { continue }
                 resultRows.append(row)
 
                 if row != prevRow {
@@ -134,8 +130,8 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
 
     func applyInserts(tableView: UITableView, prevSections: [MessagesSection]) {
         // compare sections without comparing messages inside them, just dates
-        let dates = sections.map { $0.date }
-        let coordinatorDates = prevSections.map { $0.date }
+        let dates = sections.map(\.date)
+        let coordinatorDates = prevSections.map(\.date)
 
         let dif = dates.difference(from: coordinatorDates)
         for change in dif {
@@ -149,7 +145,7 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
 
         // compare rows for each section
         for section in sections {
-            guard let index = prevSections.firstIndex(where: { $0.date == section.date } ) else { continue }
+            guard let index = prevSections.firstIndex(where: { $0.date == section.date }) else { continue }
             let dif = section.rows.difference(from: prevSections[index].rows)
 
             // animate insertions and removals
@@ -169,7 +165,6 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
     }
 
     class Coordinator<MessageContent: View>: NSObject, UITableViewDataSource, UITableViewDelegate {
-
         @ObservedObject var viewModel: ChatViewModel
         @ObservedObject var paginationState: PaginationState
 
@@ -188,8 +183,8 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
         init(viewModel: ChatViewModel, paginationState: PaginationState, isScrolledToBottom: Binding<Bool>, isScrolledToTop: Binding<Bool>, messageBuilder: MessageBuilderClosure?, avatarSize: CGFloat, messageUseMarkdown: Bool, sections: [MessagesSection], ids: [String], mainBackgroundColor: Color) {
             self.viewModel = viewModel
             self.paginationState = paginationState
-            self._isScrolledToBottom = isScrolledToBottom
-            self._isScrolledToTop = isScrolledToTop
+            _isScrolledToBottom = isScrolledToBottom
+            _isScrolledToTop = isScrolledToTop
             self.messageBuilder = messageBuilder
             self.avatarSize = avatarSize
             self.messageUseMarkdown = messageUseMarkdown
@@ -198,15 +193,15 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
             self.mainBackgroundColor = mainBackgroundColor
         }
 
-        func numberOfSections(in tableView: UITableView) -> Int {
+        func numberOfSections(in _: UITableView) -> Int {
             sections.count
         }
 
-        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
             sections[section].rows.count
         }
 
-        func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
+        func tableView(_: UITableView, viewForFooterInSection section: Int) -> UIView? {
             let header = UIHostingController(rootView:
                 Text(sections[section].formattedDate)
                     .font(.system(size: 11))
@@ -219,12 +214,11 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
             return header
         }
 
-        func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
             0.1
         }
 
         func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-
             let tableViewCell = tableView.dequeueReusableCell(withIdentifier: "Cell", for: indexPath)
             tableViewCell.selectionStyle = .none
             tableViewCell.backgroundColor = UIColor(mainBackgroundColor)
@@ -234,7 +228,7 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
                 ChatMessageView(viewModel: viewModel, messageBuilder: messageBuilder, row: row, avatarSize: avatarSize, messageUseMarkdown: messageUseMarkdown, isDisplayingMessageMenu: false)
                     .background(MessageMenuPreferenceViewSetter(id: row.id))
                     .rotationEffect(Angle(degrees: 180))
-                    .onTapGesture { }
+                    .onTapGesture {}
                     .onLongPressGesture {
                         self.viewModel.messageMenuRow = row
                     }
@@ -245,7 +239,7 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
             return tableViewCell
         }
 
-        func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        func tableView(_: UITableView, willDisplay _: UITableViewCell, forRowAt indexPath: IndexPath) {
             let row = sections[indexPath.section].rows[indexPath.row]
             paginationState.handle(row.message, ids: ids)
         }

@@ -1,14 +1,10 @@
 //
-//  MessageView.swift
-//  Chat
-//
-//  Created by Alex.M on 23.05.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 struct MessageView: View {
-
     @Environment(\.chatTheme) private var theme
 
     @ObservedObject var viewModel: ChatViewModel
@@ -40,10 +36,10 @@ struct MessageView: View {
         let timeWidth = timeSize.width + 10
         let textPaddings = MessageView.horizontalTextPadding * 2
         let widthWithoutMedia = UIScreen.main.bounds.width
-        - avatarViewSize.width
-        - statusSize.width
-        - MessageView.horizontalBubblePadding
-        - textPaddings
+            - avatarViewSize.width
+            - statusSize.width
+            - MessageView.horizontalBubblePadding
+            - textPaddings
         let maxWidth = message.attachments.isEmpty ? widthWithoutMedia : MessageView.widthWithMedia - textPaddings
         let finalWidth = message.text.width(withConstrainedWidth: maxWidth, font: UIFont.systemFont(ofSize: fontSize), messageUseMarkdown: messageUseMarkdown)
         let lastLineWidth = message.text.lastLineWidth(labelWidth: maxWidth, font: UIFont.systemFont(ofSize: fontSize), messageUseMarkdown: messageUseMarkdown)
@@ -151,7 +147,12 @@ struct MessageView: View {
     var avatarView: some View {
         Group {
             if showAvatar {
-                AvatarView(url: message.user.avatarURL, avatarSize: avatarSize)
+                AvatarView(
+                    user: message.user,
+                    avatarSize: avatarSize,
+                    textColor: theme.colors.textLightContext,
+                    backgroundColor: theme.colors.friendMessage
+                )
             } else {
                 Color.clear.viewSize(avatarSize)
             }
@@ -219,9 +220,16 @@ struct MessageView: View {
     func messageTimeView(needsCapsule: Bool = false) -> some View {
         Group {
             if needsCapsule {
-                MessageTimeWithCapsuleView(text: message.time, isCurrentUser: message.user.isCurrentUser)
+                MessageTimeWithCapsuleView(
+                    text: message.time,
+                    textColor: message.user.isCurrentUser ? theme.colors.textDarkContext : theme.colors.textLightContext,
+                    backgroundColor: message.user.isCurrentUser ? theme.colors.myMessage : theme.colors.friendMessage
+                )
             } else {
-                MessageTimeView(text: message.time, isCurrentUser: message.user.isCurrentUser)
+                MessageTimeView(
+                    text: message.time,
+                    textColor: message.user.isCurrentUser ? theme.colors.textDarkContext : theme.colors.textLightContext
+                )
             }
         }
         .sizeGetter($timeSize)
@@ -229,12 +237,10 @@ struct MessageView: View {
 }
 
 extension View {
-
     @ViewBuilder
     func bubbleBackground(_ message: Message, theme: ChatTheme, isReply: Bool = false) -> some View {
         let radius: CGFloat = !message.attachments.isEmpty ? 12 : 20
-        self
-            .frame(width: message.attachments.isEmpty ? nil : MessageView.widthWithMedia)
+        frame(width: message.attachments.isEmpty ? nil : MessageView.widthWithMedia)
             .foregroundColor(message.user.isCurrentUser ? theme.colors.textDarkContext : theme.colors.textLightContext)
             .background {
                 if isReply || !message.text.isEmpty || message.recording != nil {
@@ -266,33 +272,33 @@ extension View {
 }
 
 #if DEBUG
-struct MessageView_Preview: PreviewProvider {
-    static private var shortMessage = "Hi, buddy!"
-    static private var longMessage = "Hello hello hello hello hello hello hello hello hello hello hello hello hello\n hello hello hello hello d d d d d d d d"
+    struct MessageView_Preview: PreviewProvider {
+        private static var shortMessage = "Hi, buddy!"
+        private static var longMessage = "Hello hello hello hello hello hello hello hello hello hello hello hello hello\n hello hello hello hello d d d d d d d d"
 
-    static private var message = Message(
-        id: UUID().uuidString,
-        user: User(id: UUID().uuidString, name: "Stan", avatarURL: nil, isCurrentUser: false),
-        status: .read,
-        text: longMessage,
-        attachments: [
-            ImageAttachment.random(),
-            ImageAttachment.random(),
-            ImageAttachment.random(),
-            ImageAttachment.random(),
-            ImageAttachment.random(),
-        ]
-    )
-
-    static var previews: some View {
-        MessageView(
-            viewModel: ChatViewModel(),
-            message: message,
-            positionInGroup: .single,
-            avatarSize: 32,
-            messageUseMarkdown: false,
-            isDisplayingMessageMenu: false
+        private static var message = Message(
+            id: UUID().uuidString,
+            user: User(id: UUID().uuidString, name: "Stan", avatarURL: nil, isCurrentUser: false),
+            status: .read,
+            text: longMessage,
+            attachments: [
+                ImageAttachment.random(),
+                ImageAttachment.random(),
+                ImageAttachment.random(),
+                ImageAttachment.random(),
+                ImageAttachment.random(),
+            ]
         )
+
+        static var previews: some View {
+            MessageView(
+                viewModel: ChatViewModel(),
+                message: message,
+                positionInGroup: .single,
+                avatarSize: 32,
+                messageUseMarkdown: false,
+                isDisplayingMessageMenu: false
+            )
+        }
     }
-}
 #endif

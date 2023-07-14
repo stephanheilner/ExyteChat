@@ -1,11 +1,10 @@
 //
-//  Created by Alex.M on 08.07.2022.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
 
 struct MessagesSection: Equatable {
-
     let date: Date
     var rows: [MessageRow]
 
@@ -21,5 +20,4 @@ struct MessagesSection: Equatable {
     static func == (lhs: MessagesSection, rhs: MessagesSection) -> Bool {
         lhs.date == rhs.date && lhs.rows == rhs.rows
     }
-
 }

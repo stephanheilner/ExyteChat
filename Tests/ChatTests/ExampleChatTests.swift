@@ -1,11 +1,15 @@
-import XCTest
-import SwiftUI
+//
+//  Created by Alisa Mylnikov
+//
+
 @testable import Chat
+import SwiftUI
+import XCTest
 
 final class ExampleChatTests: XCTestCase {
     func testSomeInnerLogic() {
         // Given
-        let expected: [CGFloat]  = [1, 0, 0, 1]
+        let expected: [CGFloat] = [1, 0, 0, 1]
 
         // When
         let color = Color(hex: "FF0000")

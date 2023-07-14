@@ -1,11 +1,11 @@
 //
-//  Created by Alex.M on 01.07.2022.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
 
 extension Collection {
-    subscript (safe index: Index) -> Element? {
-        return indices.contains(index) ? self[index] : nil
+    subscript(safe index: Index) -> Element? {
+        indices.contains(index) ? self[index] : nil
     }
 }

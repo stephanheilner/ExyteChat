@@ -1,12 +1,11 @@
 //
-//  Created by Alex.M on 22.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
 import SwiftUI
 
 struct FullscreenMediaPages: View {
-
     @Environment(\.chatTheme) private var theme
     @Environment(\.mediaPickerTheme) var pickerTheme
 
@@ -31,7 +30,7 @@ struct FullscreenMediaPages: View {
                 .opacity(max((200.0 - viewModel.offset.height) / 200.0, 0.5))
             VStack {
                 TabView(selection: $viewModel.index) {
-                    ForEach(viewModel.attachments.enumerated().map({ $0 }), id: \.offset) { (index, attachment) in
+                    ForEach(viewModel.attachments.enumerated().map { $0 }, id: \.offset) { index, attachment in
                         AttachmentsPage(attachment: attachment)
                             .tag(index)
                             .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -57,7 +56,7 @@ struct FullscreenMediaPages: View {
                     if viewModel.showMinis {
                         ScrollView(.horizontal) {
                             HStack(spacing: 2) {
-                                ForEach(viewModel.attachments.enumerated().map({ $0 }), id: \.offset) { (index, attachment) in
+                                ForEach(viewModel.attachments.enumerated().map { $0 }, id: \.offset) { index, attachment in
                                     AttachmentCell(attachment: attachment) { _ in
                                         withAnimation {
                                             viewModel.index = index

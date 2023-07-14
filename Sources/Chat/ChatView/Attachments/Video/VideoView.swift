@@ -1,12 +1,11 @@
 //
-//  Created by Alex.M on 21.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import SwiftUI
 import AVKit
+import SwiftUI
 
 struct VideoView: View {
-
     @EnvironmentObject var mediaPagesViewModel: FullscreenMediaPagesViewModel
     @Environment(\.chatTheme) private var theme
 

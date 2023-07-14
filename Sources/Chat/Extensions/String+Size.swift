@@ -1,17 +1,16 @@
 //
-//  Created by Alex.M on 08.07.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 import UIKit
 
 extension String {
-
     func width(withConstrainedWidth width: CGFloat, font: UIFont, messageUseMarkdown: Bool) -> CGFloat {
         let constraintRect = CGSize(width: width, height: .greatestFiniteMagnitude)
         let boundingBox = toAttrString(font: font, messageUseMarkdown: messageUseMarkdown).boundingRect(with: constraintRect,
-                                                      options: .usesLineFragmentOrigin,
-                                                      context: nil)
+                                                                                                        options: .usesLineFragmentOrigin,
+                                                                                                        context: nil)
 
         return ceil(boundingBox.width)
     }
@@ -42,7 +41,8 @@ extension String {
         let lastGlyphIndex = layoutManager.glyphIndexForCharacter(at: attrString.length - 1)
         let lastLineFragmentRect = layoutManager.lineFragmentUsedRect(
             forGlyphAt: lastGlyphIndex,
-            effectiveRange: nil)
+            effectiveRange: nil
+        )
 
         return lastLineFragmentRect.maxX
     }

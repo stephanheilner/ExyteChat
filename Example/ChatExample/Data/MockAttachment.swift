@@ -1,9 +1,9 @@
 //
-//  Created by Alex.M on 28.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import Foundation
 import Chat
+import Foundation
 
 struct MockImage {
     let id: String

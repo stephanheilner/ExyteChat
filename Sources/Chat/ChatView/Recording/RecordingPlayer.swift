@@ -1,15 +1,11 @@
 //
-//  RecordingPlayer.swift
-//
-//
-//  Created by Alexandra Afonasova on 21.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import Combine
 import AVFoundation
+import Combine
 
 final class RecordingPlayer: ObservableObject {
-
     @Published var playing = false
     @Published var duration: Double = 0.0
     @Published var secondsLeft: Double = 0.0
@@ -98,5 +94,4 @@ final class RecordingPlayer: ObservableObject {
             self?.secondsLeft = (item.duration - time).seconds.rounded()
         }
     }
-
 }

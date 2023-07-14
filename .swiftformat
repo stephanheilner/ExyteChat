@@ -1,0 +1,6 @@
+--exclude Pods,Generated
+--disable conditionalAssignment, redundanttype, wrapConditionalBodies, wrapMultilineStatementBraces, wrapSwitchCases
+--header \n Created by Alisa Mylnikov\n
+--wrapparameters after-first
+--wrapcollections before-first
+--funcattributes prev-line

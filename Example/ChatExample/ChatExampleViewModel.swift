@@ -1,20 +1,22 @@
 //
-//  Created by Alex.M on 23.06.2022.
+//  Created by Alisa Mylnikov
 //
 
-import Foundation
-import Combine
 import Chat
+import Combine
+import Foundation
 
 final class ChatExampleViewModel: ObservableObject {
     @Published var messages: [Message] = []
-    
+
     var chatTitle: String {
         interactor.otherSenders.count == 1 ? interactor.otherSenders.first!.name : "Group chat"
     }
+
     var chatStatus: String {
         interactor.otherSenders.count == 1 ? "online" : "\(interactor.senders.count) members"
     }
+
     var chatCover: URL? {
         interactor.otherSenders.count == 1 ? interactor.otherSenders.first!.avatar : nil
     }
@@ -29,7 +31,7 @@ final class ChatExampleViewModel: ObservableObject {
     func send(draft: DraftMessage) {
         interactor.send(message: draft.toMockCreateMessage())
     }
-    
+
     func onStart() {
         interactor.messages
             .compactMap { messages in
@@ -44,7 +46,7 @@ final class ChatExampleViewModel: ObservableObject {
         interactor.disconnect()
     }
 
-    func loadMoreMessage(before message: Message) {
+    func loadMoreMessage(before _: Message) {
         interactor.loadNextPage()
             .sink { _ in }
             .store(in: &subscriptions)

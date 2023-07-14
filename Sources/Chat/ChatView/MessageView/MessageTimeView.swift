@@ -1,38 +1,37 @@
 //
-//  Created by Alex.M on 08.07.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 struct MessageTimeView: View {
-
     let text: String
-    let isCurrentUser: Bool
+    var textColor: Color = .white
 
     var body: some View {
         Text(text)
             .font(.caption)
-            .foregroundColor(isCurrentUser ? .white : .black)
+            .foregroundColor(textColor)
             .opacity(0.4)
     }
 }
 
 struct MessageTimeWithCapsuleView: View {
-
     let text: String
-    let isCurrentUser: Bool
+    var textColor: Color = .white
+    var backgroundColor: Color = .black.opacity(0.4)
 
     var body: some View {
         Text(text)
             .font(.caption)
-            .foregroundColor(.white)
+            .foregroundColor(textColor)
             .opacity(0.8)
             .padding(.top, 4)
             .padding(.bottom, 4)
             .padding(.horizontal, 8)
             .background {
                 Capsule()
-                    .fill(.black.opacity(0.4))
+                    .fill(backgroundColor)
             }
     }
 }

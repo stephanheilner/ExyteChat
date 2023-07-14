@@ -1,8 +1,5 @@
 //
-//  Color+Extension.swift
-//  ChatExample
-//
-//  Created by Alisa Mylnikova on 30.01.2023.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
@@ -32,7 +29,6 @@ extension Color {
                   red: Double(r) / 255,
                   green: Double(g) / 255,
                   blue: Double(b) / 255,
-                  opacity: Double(a) / 255
-        )
+                  opacity: Double(a) / 255)
     }
 }

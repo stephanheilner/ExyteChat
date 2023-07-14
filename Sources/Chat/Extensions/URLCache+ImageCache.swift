@@ -1,5 +1,5 @@
 //
-//  Created by Alex.M on 30.06.2022.
+//  Created by Alisa Mylnikov
 //
 
 import Foundation
@@ -17,10 +17,10 @@ private extension Int {
     }
 
     func megabytes() -> Int {
-        self.kilobytes() * 1024
+        kilobytes() * 1024
     }
 
     func gigabytes() -> Int {
-        self.megabytes() * 1024
+        megabytes() * 1024
     }
 }

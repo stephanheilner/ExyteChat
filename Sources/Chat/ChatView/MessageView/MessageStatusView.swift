@@ -1,11 +1,10 @@
 //
-//  Created by Alex.M on 07.07.2022.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 struct MessageStatusView: View {
-
     @Environment(\.chatTheme) private var theme
 
     let status: Message.Status

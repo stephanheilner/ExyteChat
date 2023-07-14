@@ -1,21 +1,16 @@
 //
-//  File.swift
-//  
-//
-//  Created by Alisa Mylnikova on 20.03.2023.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 extension View {
-
-    func transparentNonAnimatingFullScreenCover<Item, Content>(item: Binding<Item?>, @ViewBuilder content: @escaping () -> Content) -> some View where Item : Equatable, Item : Identifiable, Content : View {
+    func transparentNonAnimatingFullScreenCover(item: Binding<(some Equatable & Identifiable)?>, @ViewBuilder content: @escaping () -> some View) -> some View {
         modifier(TransparentNonAnimatableFullScreenModifier(item: item, fullScreenContent: content))
     }
 }
 
-private struct TransparentNonAnimatableFullScreenModifier<Item, FullScreenContent>: ViewModifier where Item : Equatable, Item : Identifiable, FullScreenContent : View {
-
+private struct TransparentNonAnimatableFullScreenModifier<Item, FullScreenContent>: ViewModifier where Item: Equatable, Item: Identifiable, FullScreenContent: View {
     @Binding var item: Item?
     let fullScreenContent: () -> (FullScreenContent)
 
@@ -41,11 +36,9 @@ private struct TransparentNonAnimatableFullScreenModifier<Item, FullScreenConten
                 }
             }
     }
-
 }
 
 private struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
-
     private class BackgroundRemovalView: UIView {
         override func didMoveToWindow() {
             super.didMoveToWindow()
@@ -53,10 +46,9 @@ private struct FullScreenCoverBackgroundRemovalView: UIViewRepresentable {
         }
     }
 
-    func makeUIView(context: Context) -> UIView {
-        return BackgroundRemovalView()
+    func makeUIView(context _: Context) -> UIView {
+        BackgroundRemovalView()
     }
 
-    func updateUIView(_ uiView: UIView, context: Context) {}
-
+    func updateUIView(_: UIView, context _: Context) {}
 }

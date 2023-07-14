@@ -1,14 +1,10 @@
 //
-//  RecordWaveform.swift
-//  
-//
-//  Created by Alisa Mylnikova on 14.03.2023.
+//  Created by Alisa Mylnikov
 //
 
 import SwiftUI
 
 struct RecordWaveformWithButtons: View {
-
     @Environment(\.chatTheme) private var theme
 
     @StateObject var recordPlayer = RecordingPlayer()
@@ -40,7 +36,7 @@ struct RecordWaveformWithButtons: View {
             .onTapGesture {
                 recordPlayer.togglePlay(recording)
             }
-            
+
             VStack(alignment: .leading, spacing: 5) {
                 RecordWaveformPlaying(samples: recording.waveformSamples, progress: recordPlayer.progress, color: colorWaveform, addExtraDots: false)
                 Text(DateFormatter.timeString(duration))
@@ -53,7 +49,6 @@ struct RecordWaveformWithButtons: View {
 }
 
 struct RecordWaveformPlaying: View {
-
     var samples: [CGFloat] // 0...1
     var progress: CGFloat
     var color: Color
@@ -73,7 +68,7 @@ struct RecordWaveformPlaying: View {
                     .foregroundColor(color)
                     .mask(alignment: .leading) {
                         Rectangle()
-                            .frame(width: maxLength * progress, height: 2*RecordWaveform.maxSampleHeight)
+                            .frame(width: maxLength * progress, height: 2 * RecordWaveform.maxSampleHeight)
                     }
             }
             .frame(height: RecordWaveform.maxSampleHeight)
@@ -97,8 +92,8 @@ struct RecordWaveformPlaying: View {
                     break
                 }
 
-                temp.append((adjusted[i] + adjusted[i+1])/2)
-                i+=2
+                temp.append((adjusted[i] + adjusted[i + 1]) / 2)
+                i += 2
             }
             adjusted = temp
             temp = []
@@ -108,7 +103,6 @@ struct RecordWaveformPlaying: View {
 }
 
 struct RecordWaveform: View {
-
     var samples: [CGFloat] // 0...1
     var addExtraDots: Bool
 
@@ -125,7 +119,7 @@ struct RecordWaveform: View {
                 }
 
                 if addExtraDots {
-                    ForEach(samples.count..<Int(g.size.width / (RecordWaveform.width + RecordWaveform.spacing)), id: \.self) { _ in
+                    ForEach(samples.count ..< Int(g.size.width / (RecordWaveform.width + RecordWaveform.spacing)), id: \.self) { _ in
                         Capsule()
                             .viewSize(RecordWaveform.width)
                     }
