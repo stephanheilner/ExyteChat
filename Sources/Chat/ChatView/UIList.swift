@@ -24,7 +24,7 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
     let avatarSize: CGFloat
     let messageUseMarkdown: Bool
     let sections: [MessagesSection]
-    let ids: [String]
+    @Binding var messages: [Message]
 
     @State private var isScrolledToTop = false
 
@@ -48,14 +48,14 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
         tableView.scrollsToTop = false
 
         NotificationCenter.default.addObserver(forName: .onScrollToBottom, object: nil, queue: nil) { _ in
-            DispatchQueue.main.async {
+            DispatchQueue.main.immediate {
                 if !context.coordinator.sections.isEmpty {
                     tableView.scrollToRow(at: IndexPath(row: 0, section: 0), at: .bottom, animated: true)
                 }
             }
         }
 
-        DispatchQueue.main.async {
+        DispatchQueue.main.immediate {
             shouldScrollToTop = {
                 tableView.contentOffset = CGPoint(x: 0, y: tableView.contentSize.height - tableView.frame.height)
             }
@@ -65,40 +65,23 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
     }
 
     func updateUIView(_ tableView: UITableView, context: Context) {
-        updatesQueue.async {
+        updatesQueue.immediate {
             updateSemaphore.wait()
 
             let prevSections = context.coordinator.sections
-            var editedSections = [MessagesSection]()
-
-            DispatchQueue.main.async {
-                tableView.performBatchUpdates {
-                    // step 1
-                    // check only sections that are already in the table for existing rows that changed and apply only them to table's dataSource without animation
-                    editedSections = applyEdits(tableView: tableView, prevSections: prevSections)
-                    context.coordinator.sections = editedSections
-                } completion: { _ in
-                    tableSemaphore.signal()
-                }
+            guard prevSections != sections // No Change
+            else {
+                updateSemaphore.signal()
+                return
             }
-            tableSemaphore.wait()
 
-            if isScrolledToBottom || isScrolledToTop {
-                DispatchQueue.main.sync {
-                    // step 2
-                    // apply the rest of the changes to table's dataSource
+            DispatchQueue.main.immediate {
+                tableView.performBatchUpdates {
+                    applyInserts(tableView: tableView, prevSections: prevSections)
                     context.coordinator.sections = sections
-                    context.coordinator.ids = ids
-                    // insert new rows/sections and remove old ones with animation
-                    tableView.beginUpdates()
-                    applyInserts(tableView: tableView, prevSections: editedSections)
-                    tableView.endUpdates()
-
+                } completion: { _ in
                     updateSemaphore.signal()
                 }
-            } else {
-                context.coordinator.ids = ids
-                updateSemaphore.signal()
             }
         }
     }
@@ -106,20 +89,22 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
     func applyEdits(tableView: UITableView, prevSections: [MessagesSection]) -> [MessagesSection] {
         var result = [MessagesSection]()
         let prevDates = prevSections.map(\.date)
-        for iPrevDate in 0 ..< prevDates.count {
-            let prevDate = prevDates[iPrevDate]
+        for sectionIndex in 0 ..< prevDates.count {
+            let prevDate = prevDates[sectionIndex]
             guard let section = sections.first(where: { $0.date == prevDate }),
-                  let prevSection = prevSections.first(where: { $0.date == prevDate }) else { continue }
+                  let prevSection = prevSections.first(where: { $0.date == prevDate })
+            else { continue }
 
             var resultRows = [MessageRow]()
-            for iPrevRow in 0 ..< prevSection.rows.count {
-                let prevRow = prevSection.rows[iPrevRow]
-                guard let row = section.rows.first(where: { $0.message.id == prevRow.message.id }) else { continue }
+            for rowIndex in 0 ..< prevSection.rows.count {
+                let prevRow = prevSection.rows[rowIndex]
+                guard let row = section.rows.first(where: { $0.message.id == prevRow.message.id })
+                else { continue }
                 resultRows.append(row)
 
                 if row != prevRow {
-                    DispatchQueue.main.async {
-                        tableView.reloadRows(at: [IndexPath(row: iPrevRow, section: iPrevDate)], with: .none)
+                    DispatchQueue.main.immediate {
+                        tableView.reloadRows(at: [IndexPath(row: rowIndex, section: sectionIndex)], with: .none)
                     }
                 }
             }
@@ -161,7 +146,18 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator<MessageContent> {
-        Coordinator(viewModel: viewModel, paginationState: paginationState, isScrolledToBottom: $isScrolledToBottom, isScrolledToTop: $isScrolledToTop, messageBuilder: messageBuilder, avatarSize: avatarSize, messageUseMarkdown: messageUseMarkdown, sections: sections, ids: ids, mainBackgroundColor: theme.colors.mainBackground)
+        Coordinator(
+            viewModel: viewModel,
+            paginationState: paginationState,
+            isScrolledToBottom: $isScrolledToBottom,
+            isScrolledToTop: $isScrolledToTop,
+            messageBuilder: messageBuilder,
+            avatarSize: avatarSize,
+            messageUseMarkdown: messageUseMarkdown,
+            sections: sections,
+            messages: $messages,
+            mainBackgroundColor: theme.colors.mainBackground
+        )
     }
 
     class Coordinator<MessageContent: View>: NSObject, UITableViewDataSource, UITableViewDelegate {
@@ -176,11 +172,11 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
         let avatarSize: CGFloat
         let messageUseMarkdown: Bool
         var sections: [MessagesSection]
-        var ids: [String]
+        @Binding var messages: [Message]
 
         let mainBackgroundColor: Color
 
-        init(viewModel: ChatViewModel, paginationState: PaginationState, isScrolledToBottom: Binding<Bool>, isScrolledToTop: Binding<Bool>, messageBuilder: MessageBuilderClosure?, avatarSize: CGFloat, messageUseMarkdown: Bool, sections: [MessagesSection], ids: [String], mainBackgroundColor: Color) {
+        init(viewModel: ChatViewModel, paginationState: PaginationState, isScrolledToBottom: Binding<Bool>, isScrolledToTop: Binding<Bool>, messageBuilder: MessageBuilderClosure?, avatarSize: CGFloat, messageUseMarkdown: Bool, sections: [MessagesSection], messages: Binding<[Message]>, mainBackgroundColor: Color) {
             self.viewModel = viewModel
             self.paginationState = paginationState
             _isScrolledToBottom = isScrolledToBottom
@@ -189,7 +185,7 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
             self.avatarSize = avatarSize
             self.messageUseMarkdown = messageUseMarkdown
             self.sections = sections
-            self.ids = ids
+            _messages = messages
             self.mainBackgroundColor = mainBackgroundColor
         }
 
@@ -241,12 +237,56 @@ struct UIList<MessageContent: View>: UIViewRepresentable {
 
         func tableView(_: UITableView, willDisplay _: UITableViewCell, forRowAt indexPath: IndexPath) {
             let row = sections[indexPath.section].rows[indexPath.row]
-            paginationState.handle(row.message, ids: ids)
+            paginationState.handle(row.message, ids: messages.map(\.id))
         }
 
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
             isScrolledToBottom = scrollView.contentOffset.y <= 0
             isScrolledToTop = scrollView.contentOffset.y >= scrollView.contentSize.height - scrollView.frame.height - 1
         }
+    }
+}
+
+public extension DispatchQueue {
+    /// If already on the main thread, executes the closure on the current thread, else, asynchronously
+    func immediate(execute closure: @escaping () -> Void) {
+//        if Thread.isMainThread {
+//            closure()
+//        } else {
+        async(execute: closure)
+//        }
+    }
+
+    func after(_ delay: TimeInterval, execute closure: @escaping () -> Void) {
+        asyncAfter(deadline: .now() + delay, execute: closure)
+    }
+}
+
+public class Throttle<T> {
+    private let dispatchQueue = DispatchQueue(label: "UIList.Throttler")
+    private var dispatchWorkItem = DispatchWorkItem(block: {})
+    private var previousRun = Date.distantPast
+    private let timeInterval: TimeInterval
+    private let callback: (T) -> Void
+
+    public init(_ timeInterval: TimeInterval, callback: @escaping (T) -> Void) {
+        self.timeInterval = timeInterval
+        self.callback = callback
+    }
+
+    public func call(_ t: T) {
+        dispatchWorkItem.cancel()
+        dispatchWorkItem = DispatchWorkItem { [weak self] in
+            self?.previousRun = Date()
+            self?.callback(t)
+        }
+        let delay: TimeInterval = Date().timeIntervalSince(previousRun) > timeInterval ? 0 : timeInterval
+        dispatchQueue.asyncAfter(deadline: .now() + delay, execute: dispatchWorkItem)
+    }
+}
+
+public extension Throttle where T == Void {
+    func call() {
+        call(())
     }
 }

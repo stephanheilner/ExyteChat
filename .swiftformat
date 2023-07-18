@@ -4,3 +4,4 @@
 --wrapparameters after-first
 --wrapcollections before-first
 --funcattributes prev-line
+--guardelse next-line

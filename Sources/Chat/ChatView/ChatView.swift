@@ -39,7 +39,7 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
     var chatTitle: String?
 
     private let sections: [MessagesSection]
-    private let ids: [String]
+    @Binding private var messages: [Message]
 
     @StateObject private var viewModel = ChatViewModel()
     @StateObject private var inputViewModel = InputViewModel()
@@ -61,15 +61,15 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
     @State private var menuCellOpacity: CGFloat = 0
     @State private var menuScrollView: UIScrollView?
 
-    public init(messages: [Message],
+    public init(messages: Binding<[Message]>,
                 didSendMessage: @escaping (DraftMessage) -> Void,
                 messageBuilder: @escaping MessageBuilderClosure,
                 inputViewBuilder _: @escaping InputViewBuilderClosure,
                 deleteAction: @escaping DeleteActionClosure,
                 viewMessageAction: @escaping ViewMessageActionClosure) {
+        _messages = messages
         self.didSendMessage = didSendMessage
-        sections = ChatView.mapMessages(messages)
-        ids = messages.map(\.id)
+        sections = ChatView.mapMessages(messages.wrappedValue)
         self.messageBuilder = messageBuilder
         self.deleteAction = deleteAction
         self.viewMessageAction = viewMessageAction
@@ -148,7 +148,7 @@ public struct ChatView<MessageContent: View, InputViewContent: View>: View {
                avatarSize: avatarSize,
                messageUseMarkdown: messageUseMarkdown,
                sections: sections,
-               ids: ids)
+               messages: $messages)
             .onStatusBarTap {
                 shouldScrollToTop()
             }
@@ -367,14 +367,14 @@ public extension ChatView {
 }
 
 public extension ChatView where MessageContent == EmptyView {
-    init(messages: [Message],
+    init(messages: Binding<[Message]>,
          didSendMessage: @escaping (DraftMessage) -> Void,
          inputViewBuilder: @escaping InputViewBuilderClosure,
          deleteAction: DeleteActionClosure? = nil,
          viewMessageAction: ViewMessageActionClosure? = nil) {
+        _messages = messages
         self.didSendMessage = didSendMessage
-        sections = ChatView.mapMessages(messages)
-        ids = messages.map(\.id)
+        sections = ChatView.mapMessages(messages.wrappedValue)
         self.inputViewBuilder = inputViewBuilder
         self.deleteAction = deleteAction
         self.viewMessageAction = viewMessageAction
@@ -382,14 +382,14 @@ public extension ChatView where MessageContent == EmptyView {
 }
 
 public extension ChatView where InputViewContent == EmptyView {
-    init(messages: [Message],
+    init(messages: Binding<[Message]>,
          didSendMessage: @escaping (DraftMessage) -> Void,
          messageBuilder: @escaping MessageBuilderClosure,
          deleteAction: DeleteActionClosure? = nil,
          viewMessageAction: ViewMessageActionClosure? = nil) {
+        _messages = messages
         self.didSendMessage = didSendMessage
-        sections = ChatView.mapMessages(messages)
-        ids = messages.map(\.id)
+        sections = ChatView.mapMessages(messages.wrappedValue)
         self.messageBuilder = messageBuilder
         self.deleteAction = deleteAction
         self.viewMessageAction = viewMessageAction
@@ -397,14 +397,14 @@ public extension ChatView where InputViewContent == EmptyView {
 }
 
 public extension ChatView where MessageContent == EmptyView, InputViewContent == EmptyView {
-    init(messages: [Message],
+    init(messages: Binding<[Message]>,
          didSendMessage: @escaping (DraftMessage) -> Void,
          deleteAction: DeleteActionClosure? = nil,
          viewMessageAction: ViewMessageActionClosure? = nil) {
+        _messages = messages
         self.didSendMessage = didSendMessage
         self.deleteAction = deleteAction
         self.viewMessageAction = viewMessageAction
-        sections = ChatView.mapMessages(messages)
-        ids = messages.map(\.id)
+        sections = ChatView.mapMessages(messages.wrappedValue)
     }
 }
